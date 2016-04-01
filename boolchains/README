@@ -1,0 +1,432 @@
+This directory contains a bunch of programs with which I've been experimenting
+on boolean functions of five variables.
+
+The programs are written in CWEB. (CWEB is preinstalled with many flavors
+of Linux; but if you need to install it, look at
+   http://www-cs-faculty.stanford.edu/~knuth/cweb.html
+and follow the link for downloading.) The program source files are
+  boolcode.w  [simple classification program]
+  5chains0.w  [the bootstrap program]
+  5chainsi.w  [the incremental program]
+  5chainst.w  [the test-for-special-breakthru program]
+  5chainsx.w  [the explain-a-function program]
+  5chainsy.w  [the explain-a-tree-function program]
+  schains.w   [the program that constructs special things to try]
+  fchains5.w  [an independent program described below]
+
+Variants of CWEB programs can conveniently be made using "change files".
+Here are the change files included in this package:
+  5chains1.ch for 5chainsi [incrementation without testing for breakthroughs]
+  5chainsj.ch for 5chainsi [incrementation with one breakthrough test]
+  5chainsf.ch for 5chainsi [determines the formula complexity (fanout 1)]
+  5chainsy-math.ch for 5chainsy [from truth table to Mathematica code]
+A generic way to make an executable for, say, "5chains1" is
+      ctangle 5chainsi 5chains1 5chains1
+      make 5chains1
+because the first line creates 5chains1.c from 5chainsi.w and 5chains1.ch;
+the second line creates the binary executable from 5chains1.c.
+
+Each function of 5 variables has a truth table that is conveniently represented
+as an integer with 8 hexadecimal digits. For example, 00ff00ff represents x2,
+and 00ffff00 represents x1^x2.
+
+So there are 2^32 such functions: If we maintain one byte per function,
+we need four large gigabytes of memory. It's easy to cut this from 4GGB to 2GGB
+by observing that the complement of a function has basically the same
+properties as the function itself. I had access to a machine with lots of
+memory, so I didn't work any harder to pack the data further. (However,
+several of the programs will run comfortably with less than 100 megabytes of
+memory --- namely boolcode, 5chainsx, 5chainsy, and schains.)
+
+The calculations have been speeded up by a factor of several thousand by
+using the fact that many functions are equivalent under permutation and/or
+complementation of variables. In fact, most functions are completely
+asymmetrical; so we get 7680 different functions when we apply 5!
+permutations of the variables, 32 patterns of complement/nocomplement,
+and optional complementation of the final result. This reduces the
+total number of essentially different functions to 616,126.
+
+My programs work with databases of 32000000 bytes, having a million
+32-byte records in a hash table, with one record for each of the
+616,126 classes (and therefore with about 384000 empty records,
+but I also use some records as heads of doubly linked lists).
+The programs "5chainsx" and "5chainsy" read such a database and
+report the contents of individual entries, in a more-or-less
+human-oriented form. Two databases are included in this folder:
+5chainsf.db, which gives the formula complexity (the shortest
+expression in terms of binary operators); and 5chains10.db,
+which gives the true combinational complexity, except perhaps
+for seven exceptional classes of "mystery functions" whose complexity
+is given as 12 although the true number might be 11.
+
+It's rather easy to compute the formula complexity, by first
+forming all formulas of complexity up to k and then combining
+those in order to see what new functions arise when one more
+operation is performed. The number of classes with formula
+complexity k is:
+   k=0          2
+   k=1          2
+   k=2          5
+   k=3         20
+   k=4         93
+   k=5        366
+   k=6       1730
+   k=7       8782
+   k=8      40297
+   k=9     141422
+   k=10    273277
+   k=11    145707
+   k=12      4423
+And the number of classes with true complexity k is:
+   k=0          2
+   k=1          2
+   k=2          5
+   k=3         20
+   k=4         93
+   k=5        389
+   k=6       1988
+   k=7      11382
+   k=8      60713
+   k=9     221541
+   k=10    293455
+   k=11     26529(?)
+   k=12         7(?)
+with a caveat about the seven mystery functions.
+
+Each function class is represented by its lexicographically smallest
+truth table. The simple program "boolcode" will identify the class,
+given the truth table; for example, if you say
+   boolcode  87654321
+the machine prints out
+   87654321 is 011e66aa(+4+5-1-2-3)
+meaning that 87654321 belongs to class 011e66aa. Moreover,
+if f(x1,x2,x3,x4,x5) has truth table 011e66aa, then
+f(x4,x5,1-x1,1-x2,1-x3) has truth table 87654321. If you say
+   boolcode  789abcde
+you get the complementary function
+   789abcde is -011e66aa(+4+5-1-2-3)
+and if you try
+   boolcode 12345678
+the answer is
+   12345678 is 011e66aa(+4+5+1+2+3)
+(which makes sense).
+
+The programs 5chainsx and 5chainsy give more information, but for them
+you need to use a database; once they've loaded the database, these programs
+prompt you for truth tables to try. For example, suppose you say
+   5chainsx 5chains10.db
+and then 
+   Truth table (hex): 87654321
+[where the part before the colon is the machine's prompt]. The answer is
+   87654321 is function 011e66aa(+4+5-1-2-3)
+   011e66aa has class size 7680, cost 9, and is computed thus:
+   first compute 55550000=000000ff(+5-1+2-3-4)
+   then 555a63bf=000f63bf^55550000
+   and 011e66aa=~555a63bf(-1-2-4-3+5)
+The combinational complexity is 9, and all 7680 functions in this class
+are distinct. The first time the computer ran across a function of this class,
+when trying calculations of cost 9, was when it computed 000f63bf^55550000;
+if g(x1,...,x5) is the latter function, 555a63bf, then 011e66aa is
+the truth table of 1-g(1-x1,1-x2,1-x4,1-x3,x5). (Hence by further
+change of variables, we can obtain the function with truth table 87654321.)
+
+In this derivation, "000f63bf" is the representative of a class,
+but "5550000" is one of the variants in the class 000000ff.
+Indeed, 55550000 is the truth table of x5\x1, i.e., x5&~x1; we take
+the class 000000ff, namely x1&x2, and apply the transformation (+5-1+2-3-4).
+
+To dig further, one can of course ask 5chainsx for the functions of
+lower cost that it has mentioned. For example,
+   Truth table (hex): 55550000
+   55550000 is function 000000ff(-1+5-2+3+4)
+   000000ff has class size 80, cost 1, and is computed thus:
+   first compute 00ff00ff=0000ffff(+2+3+4+5+1)
+   then 000000ff=0000ffff&00ff00ff
+
+But the program 5chainsy does the recursions and transformations for you,
+in cases where the function calculation is a tree. For example,
+   5chainsy 5chains10.db
+   Truth table (hex): 55550000
+   (~1&5)
+
+This program is quite handy, but it refers you to 5chainsx when it runs
+into a problem. For example, one possible scenario is
+   Truth table (hex): 87654321
+   (000f63bf(-4-5+2+1-3)^(~4|3))
+meaning that the database did NOT compute 000f63bf by using a simple
+binary operation. To get 87654321, you should first use 5chainsx to
+explain the computation of 000f63bf; then, apply the transformation
+(-4-5+2+1+3), and xor the result with (~x4|x3).
+
+In this case 5chainsx tells how 000f63bf was discovered:
+   5chainsx 5chains10.db
+   Truth table (hex): f63bf
+   000f63bf is function 000f63bf(+1+2+3+4+5)
+   000f63bf has class size 7680, cost 7, and is computed thus:
+   first compute 3f160f05=0007777b(+3+4-1-2+5)
+   then 3f163f05=3f160f05(1&2,2,3,4,5)
+   and 000f63bf=~3f163f05(-5+1-2-3-4)
+The machine knew a way to compute 0007777b in six steps. Apply the
+change of variables (+3+4-1-2+5) to that recipe, getting 3f160f05;
+then compute "x1=x1&x2" BEFORE starting the computation of 3f160f05;
+you'll get a recipe for 3f163f05. Finally, apply the transformation
+(-5+1-2-3-4) to that, and you've got a 7-step recipe for 000f63bf.
+
+The database 5chainsf.db gives formula complexity, so 5chainsy always
+works fine with respect to it. For example,
+   5chainsy 5chainsf.db
+   Truth table (hex): 87654321
+   ((((((5|~3)&1)^~5)&~4)|(~5&2))^((2&~4)|3))
+shows that this particular function class can actually be computed with nine
+tree steps; fancier methods aren't really needed.
+
+By the way, there's a variant program "5chainsy-math", which produces
+Mathematica output instead of parenthesized infix formulas. For example,
+   5chainsy-math 5chainsf.db
+   Truth table: 87654321
+   bx[bo[ba[bx[ba[bo[x5,cx3],x1],cx5],cx4],ba[cx5,x2]],bo[ba[x2,cx4],x3]]
+That output can be fed in to Mathematica, preceded by the contents
+of file bool.m; for example,
+
+  In[1]:= <<bool.m
+
+  In[2]:= b[bx[bo[ba[bx[ba[bo[x5,cx3],x1],cx5],cx4],ba[cx5,x2]],bo[ba[x2,cx4],x3]]]
+
+  Out[2]//BaseForm= 87654321
+                            16
+
+Here bx means BitXor, bo means BitOr, etc. (I've enclosed the formula in
+b[...] so that the truth table appears, for checking purposes.)
+
+Another situation also needs to be explained, although it doesn't
+seem to arise very often. Consider the truth table 007a9ab:
+   5chainsy 5chainsf.db
+   Truth table (hex): 7a9ab
+   (((((5|4)&3)&2)|(5&1))^((~4|~3)&1))
+The shortest formula for this function uses eight operations. But look:
+   5chainsx 5chains10.db
+   Truth table (hex): 7a9ab
+   0007a9ab is function 0007a9ab(+1+2+3+4+5)
+   0007a9ab has class size 7680, cost 7, and is computed thus:
+    use special chain number 96
+The cryptic note in this case means that we should refer to
+the file 5chains7.in, which contains a list of special chains of
+computation that were found to improve on simple "top-down" and
+"bottom-up" approaches costing more than 7. That file contains the line
+   96: 0007a9ab via 6=1|2 7=3/6 8=4|7 9=1+8 a=2\9 b=5|8 c=a/b=77f3f704
+which specifies a 7-step computation of the truth table 77f3f704; and
+that truth table belongs to class 007a9ab. Explicitly, we compute
+      x6 = x1 | x2
+      x7 = ~x3 & x6
+      x8 = x4 | x7
+      x9 = x1 ^ x8
+     x10 = x2 & ~x9
+     x11 = x5 | x8
+     x12 = ~x10 & x11.
+(Notice the notations x\y for x and-not y; x / y for not x and y.)
+
+All programs in this folder are "literate," which means that I've
+tried to make them essentially self-explanatory and that I hope
+a few people will read them and enjoy the experience. So I don't
+have to explain here exactly how they work.
+
+But I do want to record how the databases were made, because
+the process was a bit messy. The first step was to run the program
+"5chains0"; after a few minutes it output the 32000000-byte file
+/tmp/5chains0.db, which I copied to my working directory.
+
+Then I made the variant of 5chainsi called 5chainsf. The command line
+    5chainsf 5chains0.db 12 5chainsf.db
+produced the database with formula complexity information.
+
+Next, I made the variant of 5chainsi called 5chains1. The command line
+    5chains1 5chains0.db 12 5chains12.db
+gave me a database that does as well as possible without "special chains";
+but it had only 11264 classes of complexity 7, while special chains
+actually are able to increase this number to 11382 (as stated above).
+To find all such special chains, I compiled the "schains" program,
+with the definition in schains.w changed from $@d r 10" to "@d r 7"; then 
+    schains  >  schains5-7
+gave a list of 577 length-7 chains that could plausibly do better.
+(Actually 104 of those chains are "tame" and ignorable; it's a technicality
+that I won't explain here.) The next step was to run
+    5chainst 5chains12.db 7 5chains7.in < schains5-7
+because this is how the file 5chains7.in gets created.
+
+Then I made a variant of 5chainsi called 5chainsj, since I realized that
+my original idea for 5chainsi wasn't especially brilliant (but I didn't
+want to take time to start over). Now I could say
+    5chainsj 5chains12.db 7 5chains7.db < 5chains7.in
+and this gave me 5chains7.db, a database that is correct up to
+complexity 7 and has additional upper bounds for complexity 8 and 9.
+
+Another run of schains, but now with "@d r 8", gave schains5-8,
+a (longer) list of special chains. And I also made schains5-9,
+and the rather huge schains5-10; the latter had 2,236,677 chains,
+so I broke it up into eleven pieces of about 100K chains each, and
+worked simultaneously on several different computers. In principle, however,
+I could have done all in one big run, so I'll pretend that I did so.
+
+The next steps got me to the desired database, little by little:
+   5chainst 5chains7.db 8 5chains8.in < schains5-8
+   5chainsj 5chains7.db 8 5chains8.db < 5chains8.in
+   5chainst 5chains8.db 9 5chains9.in < schains5-9
+   5chainsj 5chains8.db 9 5chains9.db < 5chains9.in
+   5chainst 5chains9.db 10 5chains10.in < schains5-10
+   5chainsj 5chains9.db 10 5chains10.db < 5chains10.in
+Voila, 5chains10.db; it's correct up to complexity 10, but it includes the
+seven mystery functions still not known to have complexity 11.
+
+The seven mystery functions, together with one 12-step way to compute them
+as reported by "5chainsy 5chainsf.db", are:
+   Truth table (hex): 01bcda86
+   (((((((4&~1)^~3)&(4^2))|(~1^5))&(~3|~1))^((~4|~3)&2))^~5)
+   Truth table (hex): 067ab314
+   ((((((~2&~3)^~4)&((~5&2)^1))|(((4&~2)^~5)&(~1^~3)))^3)^2)
+   Truth table (hex): 067abc17
+   ((((((((2|~3)&4)|~5)&(3^1))^4)|((~5^1)&2))^(3|4))^2)
+   Truth table (hex): 06b5d398
+   ((((((~3^~2)&~4)|((1^~3)&~5))^(((5|4)&(3|~2))&1))^~5)^2)
+   Truth table (hex): 166eb583
+   (((((((~2&~4)|~1)&((3&2)|~5))^~4)^2)|((5^~1)&(4^~3)))^~3)
+   Truth table (hex): 1698ac5b
+   (((((((((~2&~1)^3)&5)|(~3&4))^1)&((~4^3)|~2))^~4)^~2)^5)
+   Truth table (hex): 169ae443
+   ((((((~5|3)&(2^~1))|(~5^4))&(((3&1)^5)|2))^(4&3))^1)
+
+How on earth could we compute these in eleven steps? There are
+billions of conceivable chains. My first attempt was to find
+a fairly large subset of those chains, deducible from schains5-10
+with an extra step thrown in near the top. Then I blindly evaluated trillions
+of plausible 11-steps chains, using several computers over a period of about
+a week; but none of the resulting truth tables was in a mystery class.
+
+My next attempt was more focussed: I looked at known 12-step
+evaluations of these functions, and tried a combination of machine
+and hand methods to eliminate one step. For this purpose I prepared
+a file called "trials", included in this folder, giving all ways
+to obtain a mystery function in the form
+      alpha  op  beta
+where alpha is a class representative of cost k and beta is a member
+of a class of cost 11-k.
+
+There aren't actually many such possibilities, although the number
+does run into the hundreds. Perhaps the 69 cases where k=6 and 11-k=5
+will offer the most chances of success? Anyway, I will illustrate
+the basic idea by looking rather at the first case where k=10 and
+11-k=1; this case appears as
+   01bcda86 from 01169ae4^50505050
+in "trials". The function 50505050 is, of course, (~3&5); but what
+about 01169ae4? Well, its formula complexity is 11, but by using 5chainsx
+and 5chainsy, I find the following 10-step way to compute it:
+    x6 = x1 ^ x3
+    x7 = x6 ^ x5
+    x8 = x2 ^ x5
+    x9 = x7 | ~x8
+   x10 = x2 & x6
+   x11 = x10 ^ x1
+   x12 = x9 & x11
+   x13 = x1 | x2
+   x14 = x13 & ~x5
+   x15 = x12 ^ x14
+
+At present, I see no way to combine this with (~x3 & x5). But
+of course there are lots of other 10-step ways to compute 01169ae4,
+and maybe one of them would reduce to 9 steps if the quantity ~x3&x5
+were given as a freebie.
+
+Another line in "trials" is
+   01bcda86 from 012fd568^44444444
+and this may be more promising because 44444444 is x1^x5. An xor
+might be easier to graft into a 10-step computation of 012fd568.
+
+Let me restate the problem: Can I determine, for each function of
+complexity r, the set of all _first steps_ in an r-step computation?
+(For example, is x1^x5 a legal first step capable of producing
+012fd568 in nine more steps?)
+
+Only 50 first steps are possible, so we can keep a 50-bit vector
+with each function, called its "footprint". My quest now is, for
+each pair of functions in the trials files, to see if their
+signatures intersect.
+
+I didn't have time to do a complete calculation, but I did write a program
+"fchains5" that goes as far as functions of formula size 6. That allowed
+me to test all 69 of the "6+5" cases in the trials file... and bingo!
+One of the seven mystery functions bit the dust! Here's a Mathematica proof:
+
+ In[45]:= b[bx[bo[ba[bo[x1,x4],x3],ba[bx[x2,x1],x5]],
+                ba[bo[bx[x1,x3],bx[x2,x4]],bo[bx[x2,x1],x5]]]]
+
+ Out[45]//BaseForm= 1698ac5b
+                            16
+
+So, it's one down and six to go. I myself have spent much, much more time on
+this problem than I had budgeted, so I must turn to other things or I'll
+never get Section 7.1.2 written. Anyway, why should I hog all the fun
+to myself? I gladly relinquish this problem to the rest of the world's hackers.
+
+
+
+
+------
+
+Addendum ... solved mysteries!
+
+17 Jan 06
+In[5]:= bo[ba[bx[x4,x3],bx[x2,x1,ba[cx4,x5]]],bx[ba[x3,bx[x4,x5]],ba[c[bx[x5,x2]],bx[x1,ba[cx4,x5]]]]]//b
+
+Out[5]//BaseForm= 67abc17
+                         16
+
+14 Feb 06
+Thanks to friends at Sun Research, I was able to run 53 million tests
+(of 5^11 cases each) on their development grid system, verifying that
+there are no 11-step ways to compute the remaining five functions.
+
+19 Mar 06 STOP THE PRESS!
+No: Last months' runs were actually distorted by serious bugs in
+the operating system. Yesterday I figured out how to make "5chainst"
+run more than 20 times faster, and this meant that the runs could
+be done at Stanford on a Linux system. Using this reliable setup,
+the program found solutions to four of the five stragglers:
+
+In[81]:= bx[ba[c[bx[x1,ba[cx5,bx[x4,x2]]]],bo[x2,bx[x3,x1]]],bo[ba[c[bx[x4,x5]],bx[x3,x1]],ba[x3,bx[x4,x2]]]]//b
+
+Out[81]//BaseForm= 67ab314
+                          16
+
+[This was the hardest function, in the sense that only a single type of chain
+topology produces an 11-gate circuit. The others all had multiple solutions,
+ranging from four in the case 06b5d398 to seventeen in the case 1698ac5b.]
+
+In[107]:= bx[bn[bx[x1,x2],ba[bx[x2,x4],c[bx[x3,ba[x1,x5]]]]],ba[c[bx[x4,bx[x3,ba[x1,x5]]]],bx[x3,bn[bx[x2,x4],x5]]]]//b
+
+Out[107]//BaseForm= 1bcda86
+                           16
+
+
+In[120]:= bx[ba[c[bx[x2,x5]],bo[x4,bx[bx[x1,x2],bx[ba[x1,cx5],bx[x3,x4]]]]],bo[bx[ba[x1,cx5],bx[x3,x4]],ba[x3,bx[x1,x2]]]]//b
+
+Out[120]//BaseForm= 166eb583
+                            16
+
+
+In[129]:= bx[ba[cx4,bx[x3,x2]],bo[ba[bx[x3,x2],bx[x3,x5]],ba[bx[x1,bn[x2,bx[x3,x5]]],bo[x5,bx[x4,x1]]]]]//b
+
+Out[129]//BaseForm= 6b5d398
+                           16
+
+
+Thus, only one class of 5-variable Boolean functions cannot be evaluated
+with 11 gates. That class, represented by 0x169ae443, is interesting for
+another reason because its automorphism group is the cyclic group of
+order four. (No Boolean function of four variables has a 4-cycle
+automorphism without having further symmetries.) The automorphism
+(1 -5 -4 3) (2 -2) generates the group. An equivalent function,
+with truth table 0x3dcae167, has the cyclic automorphism
+(1 2 3 4) (5 -5); but I was unable to find a formula for it (of length 12)
+that made this symmetry apparent. 
+
+
+
