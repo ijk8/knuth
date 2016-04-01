@@ -28,6 +28,13 @@ Many of the cells are known to be zero, because of the lower bounds;
 therefore we don't include them in the computation.
 @z
 @x
+@d maxx 50 /* maximum number of lines in the pattern supplied by |stdin| */
+@d maxy 50 /* maximum number of columns per line in |stdin| */
+@y
+@d maxx 100 /* maximum number of lines in the pattern supplied by |stdin| */
+@d maxy 100 /* maximum number of columns per line in |stdin| */
+@z
+@x
 int tt; /* time as given on the command line */
 @y
 int tt; /* the time being considered */
@@ -76,6 +83,10 @@ if (x0<-y0) {
   exit(-3);
 }
 r=(x0>0?2*(x0+y0):x0+2*y0);
+if (r+r+1>maxx || r+r+1>maxy) {
+  fprintf(stderr,"Recompile me: maxx and maxy must be at least %d!\n",r+r+1);
+  exit(-666);
+}
 printf("~ sat-life-upper %d %d\n",x0,y0);
 @z
 @x
