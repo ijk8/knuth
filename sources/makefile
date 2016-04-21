@@ -154,8 +154,8 @@ doc:
 	tex abstract.plaintex
 
 clean:
-	rm -f *~ *.o *.c *.h libgb.a certified \
-	         *.tex *.log *.dvi *.toc *.idx *.scn core
+	@git reset --hard
+	@git clean -dfx
 
 veryclean: clean
 	rm -f $(DEMOS)
