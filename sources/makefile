@@ -159,9 +159,3 @@ clean:
 
 veryclean: clean
 	rm -f $(DEMOS)
-
-sgb.tar: $(ALL)
-	tar cvf sgb.tar $(ALL)
-
-fulltar: $(ALL) ERRATA ANSI AMIGA PROTOTYPES MSVC
-	tar cvf sgb.tar $(ALL) ERRATA ANSI AMIGA PROTOTYPES MSVC
