@@ -163,15 +163,5 @@ veryclean: clean
 sgb.tar: $(ALL)
 	tar cvf sgb.tar $(ALL)
 
-floppy: $(ALL)
-	bar cvf /dev/rfd0 $(ALL)
-	bar tvf /dev/rfd0
-	eject
-
-fullfloppy: $(ALL) ERRATA ANSI AMIGA PROTOTYPES MSVC
-	bar cvf /dev/rfd0 $(ALL) ERRATA ANSI AMIGA PROTOTYPES MSVC
-	bar tvf /dev/rfd0
-	eject
-
 fulltar: $(ALL) ERRATA ANSI AMIGA PROTOTYPES MSVC
 	tar cvf sgb.tar $(ALL) ERRATA ANSI AMIGA PROTOTYPES MSVC
