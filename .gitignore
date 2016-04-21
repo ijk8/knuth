@@ -1,0 +1,6 @@
+*.a
+*.o
+sources/gb_*.c
+sources/gb_*.h
+sources/test_*.c
+sources/certified
