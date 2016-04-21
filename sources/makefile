@@ -5,32 +5,32 @@
 #   Be sure that CWEB version 3.0 or greater is installed before proceeding!
 
 #   Skip down to "SHORTCUT" if you're going to work only from the
-#   current directory. (Not recommended for serious users.)
+#   current directory. (Recommended for serious users.)
 
 #   Change SGBDIR to the directory where all GraphBase files will go:
-SGBDIR = /usr/local/sgb
+#SGBDIR = /usr/local/sgb
 
 #   Change DATADIR to the directory where GraphBase data files will go:
-DATADIR = $(SGBDIR)/data
+#DATADIR = $(SGBDIR)/data
 
 #   Change INCLUDEDIR to the directory where GraphBase header files will go:
-INCLUDEDIR = $(SGBDIR)/include
+#INCLUDEDIR = $(SGBDIR)/include
 
 #   Change LIBDIR to the directory where GraphBase library routines will go:
-LIBDIR = /usr/local/lib
+#LIBDIR = /usr/local/lib
 
 #   Change BINDIR to the directory where installdemos will put demo programs:
-BINDIR = /usr/local/bin
+#BINDIR = /usr/local/bin
 
 #   Change CWEBINPUTS to the directory where CWEB include files will go:
-CWEBINPUTS = /usr/local/lib/cweb
+#CWEBINPUTS = /usr/local/lib/cweb
 
 #   SHORTCUT: Uncomment these lines, for single-directory installation:
-#DATADIR = .
-#INCLUDEDIR = .
-#LIBDIR = .
-#BINDIR = .
-#CWEBINPUTS = .
+DATADIR = .
+INCLUDEDIR = .
+LIBDIR = .
+BINDIR = .
+CWEBINPUTS = .
 
 #   Uncomment the next line if your C uses <string.h> but not <strings.h>:
 #SYS = -DSYSV
@@ -40,7 +40,7 @@ CFLAGS = -g -I$(INCLUDEDIR) $(SYS)
 
 ########## You shouldn't have to change anything after this point ##########
 
-LDFLAGS = -L. -L$(LIBDIR)
+LDFLAGS = -L$(LIBDIR)
 LDLIBS = -lgb
 LOADLIBES = $(LDLIBS)
 
@@ -89,8 +89,6 @@ DEMOS = $(DEMOFILES:.w=)
 
 help:
 	@ echo "First 'make tests';"
-	@ echo "then (optionally) become superuser;"
-	@ echo "then 'make install';"
 	@ echo "then (optionally) 'make installdemos';"
 	@ echo "then (optionally) 'make clean'."
 
@@ -127,25 +125,7 @@ tests: test_io test_graph test_flip
 	echo "Congratulations --- the tests have all been passed."
 	touch certified
 
-install: lib
-	if test ! -r certified; then echo "Please run 'make tests' first!"; fi
-	test -r certified
-	make installdata
-	- mkdir $(LIBDIR)
-	- cp libgb.a $(LIBDIR)
-	- mkdir $(CWEBINPUTS)
-	- cp -p boilerplate.w gb_types.w $(CWEBINPUTS)
-	- mkdir $(INCLUDEDIR)
-	- cp -p $(HEADERS) Makefile $(INCLUDEDIR)
-
-installdata: $(DATAFILES)
-	- mkdir $(SGBDIR)
-	- mkdir $(DATADIR)
-	- cp -p $(DATAFILES) $(DATADIR)
-
 installdemos: lib $(DEMOS)
-	- mkdir $(BINDIR)
-	- mv $(DEMOS) $(BINDIR)
 
 uninstalldemos:
 	- cd $(BINDIR); rm -f $(DEMOS)
