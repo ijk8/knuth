@@ -181,7 +181,7 @@ uninstalldemos:
 figs:
 	mpost hyperbolic.mp
 	mpost kepler.mp
-	mpost li-ruskey.mp
+#	mpost li-ruskey.mp
 	mpost polyomino.mp
 	mpost sgbfig.mp
 	mpost skew-ternary-calc.mp
