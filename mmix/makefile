@@ -60,13 +60,13 @@ WEBFILES = abstime.w boilerplate.w mmix-arith.w mmix-config.w mmix-doc.w \
 CHANGEFILES =
 TESTFILES = *.mms silly.run silly.out *.mmconfig *.mmix
 MISCFILES = Makefile makefile.dos README mmix.mp mmix.1
+PDFS = abstime.pdf mmixal.pdf mmix-arith.pdf mmix-config.pdf mmix-doc.pdf \
+    mmix-io.pdf mmix-mem.pdf mmix-pipe.pdf mmix-sim.pdf mmmix.pdf mmotype.pdf
 ALL = $(WEBFILES) $(TESTFILES) $(MISCFILES)
 
 basic:  mmixal mmix
 
-doc:    mmix-doc.ps mmixal.dvi mmix-sim.dvi
-	dvips -n13 mmixal.dvi -o mmixal-intro.ps
-	dvips -n8 mmix-sim.dvi -o mmix-sim-intro.ps
+doc:    $(PDFS)
 
 all:    mmixal mmix mmotype mmmix
 

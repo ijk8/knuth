@@ -133,7 +133,7 @@ ALL = $(DATAFILES) $(KERNELFILES) $(GENERATORFILES) $(DEMOFILES) \
 OBJS = $(KERNELFILES:.w=.o) $(GENERATORFILES:.w=.o) gb_dijk.o gb_save.o
 HEADERS = $(OBJS:.o=.h)
 DEMOS = $(DEMOFILES:.w=)
-DOCS = $(SGBW:.w=.pdf) $(DEKW:.w=.pdf)
+PDFS = $(SGBW:.w=.pdf) $(DEKW:.w=.pdf)
 
 help:
 	@ echo "First 'make tests';"
@@ -187,7 +187,7 @@ figs:
 	mpost skew-ternary-calc.mp
 	mpost spspan.mp
 
-doc: figs $(DOCS)
+doc: figs $(PDFS)
 	tex abstract.plaintex
 	dvipdfm abstract.dvi
 
