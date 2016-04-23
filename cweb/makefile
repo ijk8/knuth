@@ -147,15 +147,19 @@ doc: $(SOURCES:.w=.dvi)
 
 usermanual: cwebman.tex cwebmac.tex
 	tex cwebman
+	dvipdfm cwebman.dvi
 
 fullmanual: usermanual $(SOURCES) comm-man.ch ctang-man.ch cweav-man.ch
 	make cweave
 	./cweave common.w comm-man.ch
-	tex common.tex
+	tex "\let\pdf+ \input common.tex"
+	dvipdfm common.dvi
 	./cweave ctangle.w ctang-man.ch
-	tex ctangle.tex
+	tex "\let\pdf+ \input ctangle.tex"
+	dvipdfm ctangle.dvi
 	./cweave cweave.w cweav-man.ch
-	tex cweave.tex
+	tex "\let\pdf+ \input cweave.tex"
+	dvipdfm cweave.dvi
 
 # be sure to leave ctangle.c and common.c for bootstrapping
 clean:
