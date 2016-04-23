@@ -44,13 +44,19 @@ LDFLAGS = -L$(LIBDIR)
 LDLIBS = -lgb
 LOADLIBES = $(LDLIBS)
 
-.SUFFIXES: .dvi .pdf .tex .w
+.SUFFIXES: .dvi .pdf .2pdf .ps .tex .w
 
 .tex.dvi:
 	tex "\let\pdf+ \input $*.tex"
 
 .dvi.pdf:
 	dvipdfm $*.dvi
+
+.dvi.ps:
+	dvips $*.dvi
+
+.ps.2pdf:
+	ps2pdf $*.ps
 
 .w.c:
 	if test -r $*.ch; then ctangle $*.w $*.ch; else ctangle $*.w; fi
@@ -90,17 +96,17 @@ DEKW = 15puzzle-korf0.w 15puzzle-korf1.w achain0.w achain1.w achain2.w \
         antislide3.w antislide.w back-20q.w back-commafree4.w \
         back-dissect.w back-mxn-words-mxn.w back-mxn-words-new.w back-pdi.w \
         back-skeleton-shortest.w bdd12.w bdd14.w bdd15.w bddl-rgrowth.w \
-        bddread.w celtic-paths.w co-debruijn.w commafree-eastman-new.w \
+        bddread.w                co-debruijn.w commafree-eastman-new.w \
         commafree-eastman.w dance.w decagon.w dimacs-to-sat.w domination.w \
         dot-diff.w dragon-calc.w embed.w erection.w euler-trail.w ezgraph.w \
         fchains4x.w flower-snark-line.w fog2mf.w francon.w garsia-wachs.w \
         gates-stuck.w                  gdance.w graph-cyc.w graph-sig-v0.w \
         grayspan.w grayspspan.w halftone.w hamdance.w ham.w horn-count.w \
-        hulls.w hulltr.w hullt.w hull.w hwb-fast.w hyperbolic.w \
-        koda-ruskey.w lagfib.w langford.w linked-trees.w li-ruskey.w lp.w \
+        hulls.w hulltr.w hullt.w hull.w hwb-fast.w              \
+        koda-ruskey.w lagfib.w langford.w linked-trees.w             lp.w \
         macmahon-triangles-sym-tile.w makeboard.w make_prod.w maxcliques.w \
-                         obdd.w            polyenum.w polyiamonds.w \
-        polynum.w polyominoes.w polyslave.w polysticks.w posets0.w posets.w \
+                         obdd.w                       polyiamonds.w \
+                  polyominoes.w polyslave.w polysticks.w posets0.w posets.w \
         prime-sieve-sparse.w prime-sieve.w queen-graph.w queens.w \
         rand-d4g6.w random-ternary.w ran-prim.w reflect.w rost.w sand.w \
         sat0.w sat0w.w sat10.w sat11.w sat12-erp.w sat12.w sat13.w sat8.w \
@@ -118,22 +124,24 @@ DEKW = 15puzzle-korf0.w 15puzzle-korf1.w achain0.w achain1.w achain2.w \
         sat-tomography-filter.w sat-tomography-prep.w sat-tomography.w \
         sat-tseytin.w sat-waerden.w sat-zarank.w              \
         setset-random.w setset.w sham.w simpath-directed-cycles.w \
-        simpath-reduce.w simpath.w                     sliding.w spgraph.w \
-        spiders.w spspan.w squaregraph-rand.w squaregraph.w straighten.w \
+        simpath-reduce.w simpath.w                     sliding.w           \
+                           squaregraph-rand.w squaregraph.w straighten.w \
         strongchain.w sudoku.w tcalc.w tictactoe0.w tictactoe1.w \
         tictactoe2.w tictactoe3.w tictactoe4.w tictactoe5.w tictactoe6.w \
         tictactoe7.w togpap.w topswops-fwd.w topswops.w             ulam.w \
-        unavoidable2.w unavoidable.w vacillate.w viennot.w xgdance.w \
+        unavoidable2.w unavoidable.w vacillate.w           xgdance.w \
         yplay.w zeilberger.w
 FIXW = gates-to-wires.w mcgregor-graph.w oss-data.w sat-closest-string.w \
-        setset-all.w skew-ternary-calc.w treeprobs.w
+        setset-all.w treeprobs.w
+FIGW = celtic-paths.w hyperbolic.w li-ruskey.w polyenum.w polynum.w \
+        spgraph.w spiders.w spspan.w viennot.w
 ALL = $(DATAFILES) $(KERNELFILES) $(GENERATORFILES) $(DEMOFILES) \
         $(MISCWEBS) $(CHANGEFILES) $(MISCFILES)
 
 OBJS = $(KERNELFILES:.w=.o) $(GENERATORFILES:.w=.o) gb_dijk.o gb_save.o
 HEADERS = $(OBJS:.o=.h)
 DEMOS = $(DEMOFILES:.w=)
-PDFS = $(SGBW:.w=.pdf) $(DEKW:.w=.pdf)
+PDFS = $(SGBW:.w=.pdf) $(DEKW:.w=.pdf) $(FIGW:.w=.2pdf)
 
 help:
 	@ echo "First 'make tests';"
@@ -184,12 +192,16 @@ figs:
 #	mpost li-ruskey.mp
 	mpost polyomino.mp
 	mpost sgbfig.mp
-	mpost skew-ternary-calc.mp
+#	mpost skew-ternary-calc.mp
 	mpost spspan.mp
 
 doc: figs $(PDFS)
 	tex abstract.plaintex
 	dvipdfm abstract.dvi
+	tex aah.tex
+	dvipdfm aah.dvi
+	tex mathwriting.tex
+	dvipdfm mathwriting.dvi
 
 clean:
 	@git reset --hard
