@@ -105,7 +105,7 @@ DEKW = 15puzzle-korf0.w 15puzzle-korf1.w achain0.w achain1.w achain2.w \
         hulls.w hulltr.w hullt.w hull.w hwb-fast.w              \
         koda-ruskey.w lagfib.w langford.w linked-trees.w             lp.w \
         macmahon-triangles-sym-tile.w makeboard.w make_prod.w maxcliques.w \
-                         obdd.w                       polyiamonds.w \
+                         obdd.w oss-data.w            polyiamonds.w \
                   polyominoes.w polyslave.w polysticks.w posets0.w posets.w \
         prime-sieve-sparse.w prime-sieve.w queen-graph.w queens.w \
         rand-d4g6.w random-ternary.w ran-prim.w reflect.w rost.w sand.w \
@@ -131,7 +131,7 @@ DEKW = 15puzzle-korf0.w 15puzzle-korf1.w achain0.w achain1.w achain2.w \
         tictactoe7.w togpap.w topswops-fwd.w topswops.w             ulam.w \
         unavoidable2.w unavoidable.w vacillate.w           xgdance.w \
         yplay.w zeilberger.w
-FIXW = gates-to-wires.w mcgregor-graph.w oss-data.w sat-closest-string.w \
+FIXW = gates-to-wires.w mcgregor-graph.w sat-closest-string.w \
         setset-all.w treeprobs.w
 FIGW = celtic-paths.w hyperbolic.w li-ruskey.w polyenum.w polynum.w \
         spgraph.w spiders.w spspan.w viennot.w
