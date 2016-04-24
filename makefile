@@ -6,6 +6,7 @@ doc:
 	make -C cweb/
 	make -C cweb/ fullmanual
 	make -C cweb/examples doc
+	make -C dist/etc/ doc
 	make -C dist/mf/ doc
 	make -C dist/mfware/ doc
 	make -C dist/tex/ doc
